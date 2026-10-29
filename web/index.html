@@ -68,6 +68,12 @@
   @media (prefers-reduced-motion:reduce){
     *{animation-duration:.01ms!important;transition-duration:.01ms!important}
   }
+  /* ?noanim=1 时同样让所有动画瞬间到最终态（截图用） */
+  body.noanim *,body.noanim *::before,body.noanim *::after{
+    animation-duration:.001ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:.001ms!important;
+  }
 
   /* ================= 悬浮玻璃胶囊导航 ================= */
   .navwrap{position:sticky;top:0;z-index:40;padding:14px 24px 0;display:flex;justify-content:center}
@@ -98,8 +104,17 @@
   .pill.off .dot{background:var(--danger);animation:none}
   @keyframes beat{0%,100%{box-shadow:0 0 0 0 rgba(63,185,80,.5)}55%{box-shadow:0 0 0 6px rgba(63,185,80,0)}}
 
+  /* 视图切换 tab */
+  .tabs{display:flex;gap:2px;padding:3px;border-radius:999px;
+        background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}
+  .tab{height:26px;padding:0 15px;border-radius:999px;font-size:12.5px;font-weight:550;
+       cursor:pointer;border:none;background:transparent;color:var(--fg-mid);
+       transition:background .2s,color .2s}
+  .tab:hover{color:var(--fg)}
+  .tab.on{background:rgba(255,255,255,.1);color:var(--fg);box-shadow:0 1px 3px rgba(0,0,0,.3)}
+
   /* ================= Hero（2 行铁律） ================= */
-  .hero{position:relative;z-index:1;max-width:1420px;margin:0 auto;padding:64px 24px 40px;text-align:center}
+  .hero{position:relative;z-index:1;max-width:1420px;margin:0 auto;padding:104px 24px 72px;text-align:center}
   .hero h1{
     font-size:clamp(2.6rem,4.4vw,4.1rem);line-height:1.15;font-weight:750;letter-spacing:-.035em;
     max-width:1180px;margin:0 auto;
@@ -122,8 +137,8 @@
   .btn-hero.ghost:hover{transform:translateY(-2px);background:rgba(255,255,255,.08)}
 
   /* ================= 主体 ================= */
-  main{position:relative;z-index:1;max-width:1420px;margin:0 auto;padding:8px 24px 72px;
-       display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:20px}
+  main{position:relative;z-index:1;max-width:1420px;margin:0 auto;padding:32px 24px 112px;
+       display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:24px}
   @media (max-width:1080px){main{grid-template-columns:1fr}}
 
   .panel{
@@ -274,6 +289,81 @@
   .toast.ok{background:rgba(63,185,80,.16);color:#7ee787;border-color:rgba(63,185,80,.34)}
   .toast.err{background:rgba(248,81,73,.16);color:#ff9c96;border-color:rgba(248,81,73,.34)}
 
+  /* ================= 统计视图 ================= */
+  .svpage{max-width:1420px;margin:0 auto;padding:48px 24px 112px}
+  .sv-head{display:flex;align-items:flex-start;gap:20px;margin-bottom:36px}
+  .sv-head h2{font-size:clamp(1.8rem,2.6vw,2.5rem);font-weight:720;letter-spacing:-.03em;line-height:1.2}
+  .sv-head p{margin-top:10px;font-size:14px;color:var(--fg-mid);max-width:640px;line-height:1.65}
+  .sv-head .btn{margin-left:auto;flex:0 0 auto}
+
+  .sv-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+  @media (max-width:900px){.sv-kpis{grid-template-columns:repeat(2,1fr)}}
+  .sv-kpi{
+    position:relative;border:1px solid var(--line);border-radius:var(--r-lg);padding:22px 24px;
+    background:linear-gradient(180deg,rgba(20,27,36,.9),rgba(15,20,27,.9));overflow:hidden;
+  }
+  .sv-kpi::after{
+    content:"";position:absolute;right:-40px;top:-40px;width:110px;height:110px;border-radius:50%;
+    background:radial-gradient(circle,rgba(88,166,255,.16),transparent 70%);
+  }
+  .sv-kpi.warn::after{background:radial-gradient(circle,rgba(210,153,34,.2),transparent 70%)}
+  .sv-kpi .v{font-size:34px;font-weight:760;letter-spacing:-.04em;line-height:1.1;font-variant-numeric:tabular-nums}
+  .sv-kpi .v .u{font-size:16px;font-weight:600;color:var(--fg-mid);margin-left:3px;letter-spacing:0}
+  .sv-kpi .k{font-size:12.5px;font-weight:600;color:var(--fg-mid);margin-top:6px}
+  .sv-kpi .d{font-size:11.5px;color:var(--fg-dim);margin-top:8px;line-height:1.55;position:relative;z-index:1}
+
+  .sv-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+  @media (max-width:900px){.sv-grid{grid-template-columns:1fr}}
+  .sv-grid .panel{background:linear-gradient(180deg,rgba(20,27,36,.92),rgba(15,20,27,.92));
+                  border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden}
+  .sv-grid .panel + .panel{margin-top:0}
+
+  /* 环形利用率 */
+  .ringwrap{display:flex;flex-direction:column;align-items:center;padding:12px 0 4px}
+  .ring{width:168px;height:168px;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative}
+  .ringhole{
+    width:126px;height:126px;border-radius:50%;background:#0c1118;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  }
+  .ringval{font-size:30px;font-weight:760;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+  .ringval span{font-size:15px;font-weight:600;color:var(--fg-mid);margin-left:1px}
+  .ringsub{font-size:11px;color:var(--fg-dim)}
+  .ringlabel{margin-top:14px;font-size:12px;color:var(--fg-mid)}
+
+  /* 状态分布 */
+  .distrow{margin-bottom:16px}
+  .distrow:last-child{margin-bottom:0}
+  .dl{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:7px}
+  .dl .dn2{color:var(--fg-dim);font-variant-numeric:tabular-nums}
+  .dbar{height:6px;border-radius:3px;background:rgba(255,255,255,.06);overflow:hidden}
+  .dbar i{display:block;height:100%;border-radius:3px;animation:grow .8s var(--ease-out) both}
+  .dbar i.warn{background:linear-gradient(90deg,#d29922,#e0b44a)}
+  .dbar i.ok{background:linear-gradient(90deg,#3fb950,#56d364)}
+  .dbar i.danger{background:linear-gradient(90deg,#f85149,#ff7b72)}
+
+  /* 时段柱状 */
+  .hours{display:flex;align-items:flex-end;gap:5px;height:150px;padding-top:8px}
+  .hcol{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:5px}
+  .hnum{font-size:10px;color:var(--fg-dim);font-variant-numeric:tabular-nums;height:12px}
+  .hbar{width:100%;border-radius:3px 3px 0 0;min-height:4px;transition:height .5s var(--ease-out)}
+  .hlbl{font-size:9.5px;color:var(--fg-dim);margin-top:2px}
+
+  /* 冲突留痕 */
+  .cfrow{border-bottom:1px solid var(--line);padding:10px 0}
+  .cfrow:last-child{border-bottom:none}
+  .cfl1{display:flex;align-items:center;gap:8px;font-size:12.5px}
+  .cfdev{font-weight:620}
+  .cftime{margin-left:auto;font-size:11px;color:var(--fg-dim);font-variant-numeric:tabular-nums}
+  .cfl2{font-size:11.5px;color:var(--fg-dim);margin-top:4px;line-height:1.5}
+
+  /* 待审批 */
+  .pdrow{border-bottom:1px solid var(--line);padding:11px 0}
+  .pdrow:last-child{border-bottom:none}
+  .pdl1{display:flex;align-items:center;gap:8px;font-size:12.5px}
+  .pdl1 .who{font-weight:620}
+  .pdl1 .dn{color:var(--fg-dim);font-size:11.5px;margin-left:auto}
+  .pdl2{font-size:11.5px;color:var(--fg-dim);margin-top:3px;line-height:1.5}
+
   /* 抖动（冲突） */
   @keyframes shake{0%,100%{transform:translateX(0)}18%,54%,86%{transform:translateX(-5px)}36%,72%{transform:translateX(5px)}}
   .nt.warn.shake{animation:shake .5s var(--ease-soft)}
@@ -298,6 +388,7 @@ const NOANIM = (() => {
   try { return new URLSearchParams(location.search).get("noanim") === "1"; }
   catch (e) { return false; }
 })();
+if (NOANIM) document.body.classList.add("noanim");
 const pad = n => String(n).padStart(2, "0");
 const fmtDT = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 const hhmm = s => (s || "").slice(11, 16);
@@ -418,14 +509,160 @@ function StatsTable({ rows }){
       ${rows.map(r => html`<tr key=${r.id}>
         <td>
           <div>${r.name}</div>
-          <div class="bar"><i style=${{ width: `${(r.hours / max) * 100}%`,
-                                        animationDelay: "0ms" }}></i></div>
+          <div class="bar"><i style=${{ width: `${(r.hours / max) * 100}%` }}></i></div>
         </td>
         <td class="num">${r.hours}</td>
         <td class="num">${r.sessions}</td>
       </tr>`)}
     </tbody>
   </table>`;
+}
+
+/* ================= 统计视图（独立页面） ================= */
+function Ring({ pct, label, sub }){
+  const p = Math.max(0, Math.min(100, Number(pct) || 0));
+  return html`<div class="ringwrap">
+    <div class="ring" style=${{ background: `conic-gradient(#58a6ff ${p * 3.6}deg, rgba(255,255,255,.06) 0)` }}>
+      <div class="ringhole">
+        <div class="ringval"><${CountUp} value=${p} decimals=${1} /><span>%</span></div>
+        <div class="ringsub">${sub}</div>
+      </div>
+    </div>
+    <div class="ringlabel">${label}</div>
+  </div>`;
+}
+
+function StatsView({ stats, onBack }){
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (NOANIM || !ref.current || !stats) return;
+    const items = ref.current.querySelectorAll(".sv-anim");
+    gsap.fromTo(items, { y: 26, opacity: 0 },
+      { y: 0, opacity: 1, duration: .7, stagger: .06, ease: "power3.out" });
+  }, [stats === null]);
+
+  if (!stats) {
+    return html`<div class="svpage">
+      <div class="sk" style=${{ height: "120px" }}></div>
+      <div class="sk" style=${{ height: "220px" }}></div>
+    </div>`;
+  }
+
+  const hours = stats.by_hour || {};
+  const maxHour = Math.max(1, ...Object.values(hours));
+  const st = stats.by_status || {};
+  const total = Math.max(1, (st.pending || 0) + (st.approved || 0) + (st.rejected || 0));
+
+  return html`<div class="svpage" ref=${ref}>
+    <div class="sv-head sv-anim">
+      <div>
+        <h2>统计看板</h2>
+        <p>这些数字在现状里并不存在 —— 因为没有任何一条使用记录被留下。</p>
+      </div>
+      <button class="btn" onClick=${onBack}>返回预约</button>
+    </div>
+
+    <div class="sv-kpis sv-anim">
+      <div class="sv-kpi">
+        <div class="v"><${CountUp} value=${stats.device_count ?? 0} /></div>
+        <div class="k">设备总数</div>
+        <div class="d">其中 ${(stats.idle_devices || []).length} 台当前空闲</div>
+      </div>
+      <div class="sv-kpi">
+        <div class="v"><${CountUp} value=${stats.reservation_total ?? 0} /></div>
+        <div class="k">预约总数</div>
+        <div class="d">已通过 ${stats.approved ?? 0} · 待审批 ${stats.pending ?? 0} · 驳回 ${stats.rejected ?? 0}</div>
+      </div>
+      <div class="sv-kpi">
+        <div class="v"><${CountUp} value=${stats.total_hours ?? 0} decimals=${1} /><span class="u">h</span></div>
+        <div class="k">累计机时</div>
+        <div class="d">可用 ${stats.capacity_hours ?? 0} h / ${stats.covered_days ?? 0} 天</div>
+      </div>
+      <div class="sv-kpi warn">
+        <div class="v"><${CountUp} value=${stats.conflict_count ?? 0} /></div>
+        <div class="k">冲突次数</div>
+        <div class="d">每次撞车都留了痕，不再是"说不清"</div>
+      </div>
+    </div>
+
+    <div class="sv-grid">
+      <div class="panel sv-anim">
+        <div class="phead">设备利用率</div>
+        <div class="pbody" style=${{ display: "flex", justifyContent: "center" }}>
+          <${Ring} pct=${stats.utilization ?? 0} label="已有机时 / 可用机时"
+                    sub=${`${stats.covered_days ?? 0} 天`} />
+        </div>
+      </div>
+
+      <div class="panel sv-anim">
+        <div class="phead">预约状态分布</div>
+        <div class="pbody">
+          ${[["pending", "待审批", "warn"], ["approved", "已通过", "ok"], ["rejected", "已驳回", "danger"]]
+            .map(([k, label, cls]) => {
+              const n = st[k] || 0;
+              const pct = (n / total) * 100;
+              return html`<div key=${k} class="distrow">
+                <div class="dl"><span>${label}</span><span class="dn2">${n} 条</span></div>
+                <div class="dbar"><i class=${cls} style=${{ width: `${pct}%` }}></i></div>
+              </div>`;
+            })}
+        </div>
+      </div>
+
+      <div class="panel sv-anim" style=${{ gridColumn: "span 2" }}>
+        <div class="phead">时段分布 <span class="n">按预约起始小时统计</span></div>
+        <div class="pbody">
+          <div class="hours">
+            ${Object.entries(hours).map(([h, n]) => html`<div key=${h} class="hcol" title=${`${h}:00 — ${n} 次`}>
+              <div class="hnum">${n || ""}</div>
+              <div class="hbar" style=${{ height: `${Math.max(4, (n / maxHour) * 100)}%`,
+                                        background: n ? "linear-gradient(180deg,#6cb4ff,#3d8ee8)" : "rgba(255,255,255,.06)" }}></div>
+              <div class="hlbl">${h}</div>
+            </div>`)}
+          </div>
+        </div>
+      </div>
+
+      <div class="panel sv-anim" style=${{ gridColumn: "span 2" }}>
+        <div class="phead">设备机时排行 <span class="n">${stats.by_device?.length || 0} 台</span></div>
+        <div class="pbody">
+          ${stats.by_device?.length
+            ? html`<${StatsTable} rows=${stats.by_device} />`
+            : html`<div class="empty">暂无数据</div>`}
+        </div>
+      </div>
+
+      <div class="panel sv-anim">
+        <div class="phead">冲突留痕 <span class="n">最近 ${stats.recent_conflicts?.length || 0} 条</span></div>
+        <div class="pbody">
+          ${stats.recent_conflicts?.length
+            ? stats.recent_conflicts.map((c, i) => html`<div key=${i} class="cfrow">
+                <div class="cfl1"><span class="cfdev">${c.device_name || c.device_id}</span>
+                  <span class="cftime">${(c.at || "").slice(5, 16).replace("T", " ")}</span></div>
+                <div class="cfl2">${c.user} 想约 ${hhmm(c.start)}–${hhmm(c.end)}，与 ${c.conflict_with} 撞车</div>
+              </div>`)
+            : html`<div class="empty">还没有冲突记录<br/><span style=${{ fontSize: "11.5px" }}>
+                试着约一个已被占的时段，这里就会出现
+              </span></div>`}
+        </div>
+      </div>
+
+      <div class="panel sv-anim">
+        <div class="phead">待审批 <span class="n">${stats.pending_list?.length || 0} 条</span></div>
+        <div class="pbody">
+          ${stats.pending_list?.length
+            ? stats.pending_list.map(r => html`<div key=${r.id} class="pdrow">
+                <div class="pdl1"><span class="who">${r.user}</span>
+                  <span class="dn">${r.device_name}</span></div>
+                <div class="pdl2">${r.start.replace("T", " ")} → ${hhmm(r.end)}</div>
+                <div class="pdl2">${r.purpose}</div>
+              </div>`)
+            : html`<div class="empty">没有待审批的预约</div>`}
+        </div>
+      </div>
+    </div>
+  </div>`;
 }
 
 /* ================= 主应用 ================= */
@@ -442,6 +679,10 @@ function App(){
   const [notice, setNotice] = useState(null);
   const [busy, setBusy] = useState(false);
   const [online, setOnline] = useState(null);
+  const [view, setView] = useState(() => {   // booking | stats
+    try { return new URLSearchParams(location.search).get("view") === "stats" ? "stats" : "booking"; }
+    catch (e) { return "booking"; }
+  });
   const [toasts, toast] = useToasts();
 
   const heroRef = useRef(null);
@@ -540,6 +781,10 @@ function App(){
         <span class="brand">实验室设备预约</span>
         <span class="sep"></span>
         <span class="meta">高校教学 / 科研实验室</span>
+        <div class="tabs">
+          <button class=${"tab" + (view === "booking" ? " on" : "")} onClick=${() => setView("booking")}>预约</button>
+          <button class=${"tab" + (view === "stats" ? " on" : "")} onClick=${() => setView("stats")}>统计</button>
+        </div>
         <span class="spacer"></span>
         <span class=${"pill" + (online === false ? " off" : "")}>
           <span class="dot"></span>
@@ -548,16 +793,18 @@ function App(){
       </div>
     </div>
 
+    ${view === "stats"
+      ? html`<${StatsView} stats=${stats} onBack=${() => setView("booking")} />`
+      : html`
     <section class="hero" ref=${heroRef}>
       <h1>把设备预约从<span class="grad">微信口头</span><br/>变成可查、可验、可统计</h1>
       <p>提交前自动检测时段冲突，冲突时直接给出当天可约时间；每次使用自动留痕，利用率不再靠感觉估。</p>
       <div class="cta">
-        <button class="btn-hero solid" onClick=${() => document.querySelector(".panel")?.scrollIntoView({ block: "center" })}>
-          开始预约
-        </button>
-        <button class="btn-hero ghost" onClick=${() => document.querySelectorAll(".panel")[2]?.scrollIntoView({ block: "center" })}>
-          查看统计
-        </button>
+        <button class="btn-hero solid" onClick=${() => {
+          setView("booking");
+          setTimeout(() => document.querySelector(".panel")?.scrollIntoView({ block: "center", behavior: "smooth" }), 60);
+        }}>开始预约</button>
+        <button class="btn-hero ghost" onClick=${() => setView("stats")}>查看统计</button>
       </div>
     </section>
 
@@ -651,6 +898,7 @@ function App(){
         </div>
       </div>
     </main>
+    `}
 
     <${Toasts} list=${toasts} />
   <//>`;

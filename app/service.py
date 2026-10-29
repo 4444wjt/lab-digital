@@ -120,6 +120,16 @@ def create_reservation(payload: dict[str, Any]) -> dict[str, Any]:
     start, end = payload.get("start", ""), payload.get("end", "")
     conflict = check_conflict(device_id, start, end)
     if conflict:
+        # 留痕：这正是业务挖掘里说「无法证明冲突发生过」的那个缺口
+        store.add_conflict({
+            "device_id": device_id,
+            "device_name": device.get("name"),
+            "user": (payload.get("user") or "").strip(),
+            "start": start,
+            "end": end,
+            "conflict_with": conflict.get("user"),
+            "at": datetime.now().isoformat(timespec="seconds"),
+        })
         raise ConflictError(
             f"时段冲突：{conflict.get('user')} 已在 {conflict['start'][11:16]}–{conflict['end'][11:16]} 预约",
             conflict,
@@ -169,9 +179,11 @@ def reject(rid: str, reason: str = "") -> dict[str, Any]:
 # ---------- 统计 ----------
 
 def stats() -> dict[str, Any]:
+    """统计看板的数据源。字段只增不改，避免前端改动。"""
     devices = store.list_devices()
     res = store.list_reservations()
     approved = [r for r in res if r.get("status") == "approved"]
+    pending = [r for r in res if r.get("status") == "pending"]
 
     hours_by_device: dict[str, float] = {}
     for r in approved:
@@ -184,17 +196,65 @@ def stats() -> dict[str, Any]:
     rows = []
     for d in devices:
         used = round(hours_by_device.get(d["id"], 0), 1)
-        rows.append({"id": d["id"], "name": d["name"], "hours": used, "sessions": sum(
-            1 for r in approved if r["device_id"] == d["id"])})
+        rows.append({
+            "id": d["id"],
+            "name": d["name"],
+            "hours": used,
+            "sessions": sum(1 for r in approved if r["device_id"] == d["id"]),
+            "maintenance": bool(d.get("maintenance")),
+        })
     rows.sort(key=lambda x: x["hours"], reverse=True)
 
+    # 按时段分布（只看 approved 的起点小时）
+    by_hour: dict[int, int] = {}
+    for r in approved:
+        try:
+            h = _parse(r["start"]).hour
+        except ValueError:
+            continue
+        by_hour[h] = by_hour.get(h, 0) + 1
+
+    # 冲突记录
+    conflicts = store.list_conflicts()
+    conflict_by_device: dict[str, int] = {}
+    for c in conflicts:
+        nm = c.get("device_name") or c.get("device_id") or "?"
+        conflict_by_device[nm] = conflict_by_device.get(nm, 0) + 1
+
+    # 利用率：只用「已通过」的机时 / 可用机时（设备数 x 14 小时 x 覆盖天数）
+    days = 1
+    if approved:
+        try:
+            starts = [_parse(r["start"]) for r in approved]
+            days = max(1, (max(starts).date() - min(starts).date()).days + 1)
+        except ValueError:
+            days = 1
+    capacity = max(1e-9, len(devices) * (WORK_END - WORK_START) * days)
+    utilization = round(sum(hours_by_device.values()) / capacity * 100, 1)
+
     return {
+        # —— 兼容字段（前端已有）——
         "device_count": len(devices),
         "reservation_total": len(res),
-        "pending": sum(1 for r in res if r.get("status") == "pending"),
+        "pending": len(pending),
         "approved": len(approved),
         "rejected": sum(1 for r in res if r.get("status") == "rejected"),
         "total_hours": round(sum(hours_by_device.values()), 1),
         "by_device": rows,
         "idle_devices": [d["name"] for d in list_devices_with_status() if d["runtime_status"] == "idle"],
+        # —— 新增字段（统计页用）——
+        "by_status": {
+            "pending": len(pending),
+            "approved": len(approved),
+            "rejected": sum(1 for r in res if r.get("status") == "rejected"),
+        },
+        "by_hour": {str(h): by_hour.get(h, 0) for h in range(WORK_START, WORK_END)},
+        "top_devices": rows[:3],
+        "pending_list": sorted(pending, key=lambda r: r.get("start", "")),
+        "conflict_count": len(conflicts),
+        "conflict_by_device": dict(sorted(conflict_by_device.items(), key=lambda kv: -kv[1])[:6]),
+        "recent_conflicts": conflicts[-5:][::-1],
+        "utilization": utilization,
+        "covered_days": days,
+        "capacity_hours": round(capacity, 1),
     }

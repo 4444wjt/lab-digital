@@ -84,3 +84,18 @@ def next_reservation_id() -> str:
     while any(r.get("id") == f"R{n:03d}" for r in items):
         n += 1
     return f"R{n:03d}"
+
+
+# ---------- 冲突记录 ----------
+# 业务挖掘里说「冲突次数无法证明，因为没有记录」。这里补上：每次提交撞上冲突，
+# 都留一条 —— 于是"每学期冲突多少次"从猜测变成可查。
+
+def add_conflict(entry: dict[str, Any]) -> None:
+    with _LOCK:
+        data = _read()
+        data.setdefault("conflicts", []).append(entry)
+        _write(data)
+
+
+def list_conflicts() -> list[dict[str, Any]]:
+    return _read().get("conflicts", [])
