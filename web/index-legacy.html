@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>实验室设备预约 · MVP</title>
+<style>
+  :root{
+    --bg:#f6f8fa; --panel:#fff; --line:#d0d7de; --line-soft:#e8ecf0;
+    --fg:#1f2328; --fg-muted:#656d76; --fg-dim:#8c959f;
+    --accent:#0969da; --ok:#1a7f37; --ok-bg:#dafbe1;
+    --warn:#9a6700; --warn-bg:#fff8c5; --warn-line:#d4a72c;
+    --danger:#cf222e; --danger-bg:#ffebe9;
+    --radius:8px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--fg); font-size:14px; line-height:1.55;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  }
+  button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+
+  header{
+    height:52px;display:flex;align-items:center;gap:12px;padding:0 24px;
+    background:#fff;border-bottom:1px solid var(--line);
+  }
+  header .brand{font-weight:650;font-size:15px}
+  header .sub{font-size:12px;color:var(--fg-muted)}
+  header .right{margin-left:auto;font-size:12px;color:var(--fg-muted);display:flex;gap:14px}
+
+  main{max-width:1400px;margin:0 auto;padding:20px 24px 40px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:18px}
+  @media (max-width:1080px){ main{grid-template-columns:1fr} }
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .card-head{
+    padding:10px 14px;background:var(--bg);border-bottom:1px solid var(--line);
+    font-size:13px;font-weight:650;display:flex;align-items:center;gap:8px;
+  }
+  .card-head .count{margin-left:auto;font-weight:400;font-size:12px;color:var(--fg-muted)}
+  .card-body{padding:14px}
+
+  /* 设备 */
+  .devices{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .dev{
+    border:1px solid var(--line-soft);border-radius:var(--radius);padding:10px 12px;
+    cursor:pointer;transition:border-color .15s,box-shadow .15s;background:#fff;
+  }
+  .dev:hover{border-color:var(--accent);box-shadow:0 0 0 3px rgba(9,105,218,.08)}
+  .dev .top{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+  .dev .name{font-size:13.5px;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .dot{width:7px;height:7px;border-radius:50%;flex:0 0 7px}
+  .dot.idle{background:var(--ok)} .dot.busy{background:var(--warn)} .dot.maintenance{background:var(--fg-dim)}
+  .dev .meta{font-size:11.5px;color:var(--fg-muted);line-height:1.5}
+  .dev .badge{
+    display:inline-block;padding:1px 7px;border-radius:20px;font-size:11px;font-weight:600;margin-top:4px;
+  }
+  .badge.idle{background:var(--ok-bg);color:var(--ok)}
+  .badge.busy{background:var(--warn-bg);color:var(--warn)}
+  .badge.maintenance{background:#eef1f4;color:var(--fg-muted)}
+
+  /* 表单 */
+  .field{margin-bottom:12px}
+  .field label{display:block;font-size:12px;font-weight:600;margin-bottom:5px}
+  .field .hint{font-weight:400;color:var(--fg-muted);font-size:11.5px;margin-left:6px}
+  input,select{
+    width:100%;height:34px;padding:0 10px;border:1px solid var(--line);border-radius:6px;
+    background:#fff;outline:none;transition:border-color .15s,box-shadow .15s;
+  }
+  input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(9,105,218,.12)}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+  .btn{
+    height:34px;padding:0 16px;border:1px solid var(--line);border-radius:6px;background:var(--bg);
+    font-weight:500;cursor:pointer;transition:background .15s;
+  }
+  .btn:hover{background:#eef1f4}
+  .btn.primary{background:var(--accent);border-color:rgba(31,35,40,.15);color:#fff}
+  .btn.primary:hover{background:#0860c4}
+  .btn:disabled{opacity:.55;cursor:not-allowed}
+  .btn.sm{height:26px;padding:0 10px;font-size:12px;border-radius:5px}
+
+  /* 提示条 */
+  .notice{
+    padding:10px 12px;border-radius:var(--radius);font-size:13px;margin-bottom:12px;
+    border:1px solid var(--line);background:var(--bg);
+  }
+  .notice.ok{background:var(--ok-bg);border-color:#aceebb;color:var(--ok)}
+  .notice.err{background:var(--danger-bg);border-color:#ffcecb;color:var(--danger)}
+  .notice.warn{background:var(--warn-bg);border-color:var(--warn-line);color:var(--warn)}
+  .notice b{font-weight:650}
+  .notice .slots{margin-top:8px;font-size:12.5px}
+  .notice .slot{
+    display:inline-block;padding:2px 9px;margin:3px 6px 0 0;border-radius:20px;
+    background:#fff;border:1px solid var(--warn-line);color:var(--warn);font-weight:600;cursor:pointer;
+  }
+  .notice .slot:hover{background:#fffdf0}
+
+  /* 预约列表 */
+  .res{border-bottom:1px solid var(--line-soft);padding:10px 0}
+  .res:last-child{border-bottom:none}
+  .res .l1{display:flex;align-items:center;gap:8px;font-size:13px}
+  .res .who{font-weight:600}
+  .res .dev-name{color:var(--fg-muted);font-size:12px}
+  .res .time{margin-left:auto;font-size:12px;color:var(--fg-muted);font-variant-numeric:tabular-nums}
+  .res .l2{font-size:12px;color:var(--fg-muted);margin-top:3px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .tag{display:inline-block;padding:1px 7px;border-radius:20px;font-size:11px;font-weight:600}
+  .tag.pending{background:var(--warn-bg);color:var(--warn)}
+  .tag.approved{background:var(--ok-bg);color:var(--ok)}
+  .tag.rejected{background:var(--danger-bg);color:var(--danger)}
+  .res .acts{margin-left:auto;display:flex;gap:6px}
+
+  /* 统计 */
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line-soft)}
+  th{font-size:11.5px;color:var(--fg-dim);font-weight:600}
+  td.num{text-align:right;font-variant-numeric:tabular-nums}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+  .kpi{border:1px solid var(--line-soft);border-radius:var(--radius);padding:10px 12px}
+  .kpi .v{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums}
+  .kpi .k{font-size:11.5px;color:var(--fg-muted);margin-top:2px}
+  .empty{color:var(--fg-muted);font-size:13px;text-align:center;padding:24px}
+</style>
+</head>
+<body>
+
+<header>
+  <span class="brand">实验室设备预约</span>
+  <span class="sub">数智化 MVP · 只做设备预约一条主路径</span>
+  <span class="right">
+    <span id="health">连接中…</span>
+    <span>冲突检测由系统完成，不靠记忆</span>
+  </span>
+</header>
+
+<main>
+  <!-- 左：设备 + 表单 -->
+  <div>
+    <div class="card" style="margin-bottom:18px">
+      <div class="card-head">设备清单 <span class="count" id="devCount"></span></div>
+      <div class="card-body"><div class="devices" id="devices"></div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">提交预约</div>
+      <div class="card-body">
+        <div id="notice"></div>
+        <div class="field">
+          <label>设备 <span class="hint">点上方卡片可自动填入</span></label>
+          <select id="device"></select>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label>开始时间</label>
+            <input id="start" type="datetime-local">
+          </div>
+          <div class="field">
+            <label>结束时间</label>
+            <input id="end" type="datetime-local">
+          </div>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label>预约人</label>
+            <input id="user" placeholder="姓名">
+          </div>
+          <div class="field">
+            <label>用途 <span class="hint">哪门课 / 哪个课题</span></label>
+            <input id="purpose" placeholder="例：分析化学实验">
+          </div>
+        </div>
+        <button class="btn primary" id="submit">提交预约</button>
+        <span style="font-size:12px;color:var(--fg-dim);margin-left:10px">提交后自动查冲突，冲突会给出可约时段</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 右：预约 + 统计 -->
+  <div>
+    <div class="card" style="margin-bottom:18px">
+      <div class="card-head">预约记录 <span class="count" id="resCount"></span></div>
+      <div class="card-body" id="resList"><div class="empty">加载中…</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">统计看板 <span class="count">现状里没有的东西</span></div>
+      <div class="card-body">
+        <div class="kpis" id="kpis"></div>
+        <table>
+          <thead><tr><th>设备</th><th class="num">使用时长(h)</th><th class="num">次数</th></tr></thead>
+          <tbody id="statBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+const API = "";
+const $ = id => document.getElementById(id);
+
+async function j(url, opt) {
+  const r = await fetch(url, opt);
+  const data = await r.json().catch(() => ({}));
+  return { ok: r.ok, status: r.status, data };
+}
+
+/* ---------- 设备 ---------- */
+async function loadDevices() {
+  const { data } = await j(API + "/api/devices");
+  const sel = $("device");
+  sel.innerHTML = "";
+  $("devices").innerHTML = "";
+  $("devCount").textContent = (data.devices || []).length + " 台";
+
+  (data.devices || []).forEach(d => {
+    const o = document.createElement("option");
+    o.value = d.id;
+    o.textContent = `${d.id} · ${d.name}`;
+    sel.appendChild(o);
+
+    const statusText = { idle: "空闲", busy: "使用中", maintenance: "维护中" }[d.runtime_status];
+    const el = document.createElement("div");
+    el.className = "dev";
+    el.innerHTML = `
+      <div class="top">
+        <span class="dot ${d.runtime_status}"></span>
+        <span class="name" title="${d.name}">${d.name}</span>
+      </div>
+      <div class="meta">${d.model}</div>
+      <div class="meta">${d.location}</div>
+      <span class="badge ${d.runtime_status}">${statusText}</span>
+      ${d.next_booking ? `<div class="meta" style="margin-top:4px">下次占用 ${d.next_booking.start.slice(11,16)}–${d.next_booking.end.slice(11,16)}</div>` : ""}
+    `;
+    el.onclick = () => {
+      sel.value = d.id;
+      $("purpose").focus();
+      window.scrollTo({ top: $("submit").getBoundingClientRect().top + window.scrollY - 200, behavior: "smooth" });
+    };
+    $("devices").appendChild(el);
+  });
+}
+
+/* ---------- 预约 ---------- */
+function resRow(r) {
+  const tagText = { pending: "待审批", approved: "已通过", rejected: "已驳回" }[r.status] || r.status;
+  const el = document.createElement("div");
+  el.className = "res";
+  el.innerHTML = `
+    <div class="l1">
+      <span class="who">${r.user}</span>
+      <span class="dev-name">${r.device_name || r.device_id}</span>
+      <span class="time">${r.start.replace("T", " ")} → ${r.end.slice(11, 16)}</span>
+    </div>
+    <div class="l2">
+      <span class="tag ${r.status}">${tagText}</span>
+      <span>${r.purpose}</span>
+      ${r.reject_reason ? `<span style="color:var(--danger)">· ${r.reject_reason}</span>` : ""}
+      ${r.status === "pending" ? `
+        <span class="acts">
+          <button class="btn sm" data-act="approve" data-id="${r.id}">通过</button>
+          <button class="btn sm" data-act="reject" data-id="${r.id}">驳回</button>
+        </span>` : ""}
+    </div>`;
+  el.querySelectorAll("button[data-act]").forEach(b => {
+    b.onclick = async () => {
+      const act = b.dataset.act, id = b.dataset.id;
+      if (act === "approve") {
+        const { ok, status, data } = await j(`${API}/api/reservations/${id}/approve`, { method: "POST" });
+        if (!ok) return showNotice(status, data);
+      } else {
+        const reason = prompt("驳回原因（可留空）") ?? "";
+        const { ok, status, data } = await j(`${API}/api/reservations/${id}/reject`, {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ reason }),
+        });
+        if (!ok) return showNotice(status, data);
+      }
+      await Promise.all([loadReservations(), loadDevices(), loadStats()]);
+    };
+  });
+  return el;
+}
+
+async function loadReservations() {
+  const { data } = await j(API + "/api/reservations");
+  const list = $("resList");
+  list.innerHTML = "";
+  const items = data.reservations || [];
+  $("resCount").textContent = items.length + " 条";
+  if (!items.length) { list.innerHTML = '<div class="empty">还没有预约</div>'; return; }
+  items.forEach(r => list.appendChild(resRow(r)));
+}
+
+/* ---------- 统计 ---------- */
+async function loadStats() {
+  const { data } = await j(API + "/api/stats");
+  $("kpis").innerHTML = `
+    <div class="kpi"><div class="v">${data.device_count ?? 0}</div><div class="k">设备总数</div></div>
+    <div class="kpi"><div class="v">${data.approved ?? 0}</div><div class="k">已通过预约</div></div>
+    <div class="kpi"><div class="v">${data.total_hours ?? 0}</div><div class="k">累计机时(h)</div></div>
+    <div class="kpi"><div class="v">${data.pending ?? 0}</div><div class="k">待审批</div></div>`;
+  const body = $("statBody");
+  body.innerHTML = "";
+  (data.by_device || []).forEach(row => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${row.name}</td><td class="num">${row.hours}</td><td class="num">${row.sessions}</td>`;
+    body.appendChild(tr);
+  });
+}
+
+/* ---------- 提示 ---------- */
+function showNotice(status, data) {
+  const box = $("notice");
+  if (status === 409) {
+    const c = data.conflicting || {};
+    const slots = (data.suggested_slots || [])
+      .map(s => `<span class="slot" onclick="pickSlot('${s}')">${s.slice(11, 16)} 起</span>`).join("");
+    box.innerHTML = `
+      <div class="notice warn">
+        <b>时段冲突</b> — ${data.message || ""}
+        <div class="slots">
+          这一天还有这些时段可约：${slots || "（当天已排满）"}
+        </div>
+      </div>`;
+  } else if (status === 400) {
+    box.innerHTML = `<div class="notice err">${data.message || "参数有误"}</div>`;
+  } else {
+    box.innerHTML = `<div class="notice err">提交失败（HTTP ${status}）</div>`;
+  }
+}
+
+function pickSlot(iso) {
+  $("start").value = iso;
+  const dur = 2;
+  const d = new Date(iso);
+  d.setHours(d.getHours() + dur);
+  const pad = n => String(n).padStart(2, "0");
+  $("end").value = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+/* ---------- 提交 ---------- */
+$("submit").onclick = async () => {
+  const payload = {
+    device_id: $("device").value,
+    start: $("start").value,
+    end: $("end").value,
+    user: $("user").value.trim(),
+    purpose: $("purpose").value.trim(),
+  };
+  if (!payload.start || !payload.end) {
+    $("notice").innerHTML = '<div class="notice err">请选择开始与结束时间</div>';
+    return;
+  }
+  const btn = $("submit");
+  btn.disabled = true; btn.textContent = "提交中…";
+  try {
+    const { ok, status, data } = await j(API + "/api/reservations", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (ok) {
+      $("notice").innerHTML = `<div class="notice ok">已提交，等待管理员审批（单号 ${data.reservation.id}）</div>`;
+      await Promise.all([loadReservations(), loadDevices(), loadStats()]);
+    } else {
+      showNotice(status, data);
+    }
+  } finally {
+    btn.disabled = false; btn.textContent = "提交预约";
+  }
+};
+
+/* ---------- 启动 ---------- */
+(async function init() {
+  try {
+    const { data } = await j(API + "/health");
+    $("health").textContent = `后端在线 · 设备 ${data.devices} 台`;
+  } catch (e) {
+    $("health").textContent = "后端未连接";
+  }
+  await Promise.all([loadDevices(), loadReservations(), loadStats()]);
+
+  // 默认填一个明天的时间
+  const t = new Date(); t.setDate(t.getDate() + 1); t.setHours(9, 30, 0, 0);
+  const pad = n => String(n).padStart(2, "0");
+  const fmt = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  $("start").value = fmt(t);
+  const e = new Date(t); e.setHours(e.getHours() + 1);
+  $("end").value = fmt(e);
+})();
+</script>
+</body>
+</html>

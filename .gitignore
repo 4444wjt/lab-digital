@@ -1,0 +1,23 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# 运行时数据（由 python -m app.seed 生成）
+data/db.json
+
+# 截图与临时产物
+_shot/
+*.log
+*.tmp
+
+# 环境变量
+.env
+.env.local
+
+# 编辑器
+.vscode/
+.idea/
+.DS_Store

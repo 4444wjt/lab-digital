@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 940" width="1180" height="940" font-family="Microsoft YaHei, PingFang SC, sans-serif">
+  <defs>
+    <marker id="b" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+      <path d="M0,0 L10,4 L0,8 Z" fill="#64748b"/>
+    </marker>
+    <marker id="bg" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+      <path d="M0,0 L10,4 L0,8 Z" fill="#16a34a"/>
+    </marker>
+  </defs>
+
+  <rect width="1180" height="940" fill="#ffffff"/>
+
+  <text x="40" y="46" font-size="26" font-weight="700" fill="#0f172a">数智化转型后流程：设备预约（在线、自动查冲突、自动留痕）</text>
+  <text x="40" y="74" font-size="14" fill="#64748b">同一主路径 · 系统接管「查冲突」与「记录」两件事 · 绿色为自动化环节</text>
+
+  <!-- 泳道 -->
+  <g font-size="13" font-weight="600" fill="#475569">
+    <rect x="40" y="100" width="86" height="300" fill="#f1f5f9" rx="6"/>
+    <text x="83" y="235" text-anchor="middle">学 生</text>
+    <rect x="40" y="420" width="86" height="290" fill="#ecfdf5" rx="6"/>
+    <text x="83" y="555" text-anchor="middle" fill="#15803d">系 统</text>
+    <rect x="40" y="730" width="86" height="120" fill="#e2e8f0" rx="6"/>
+    <text x="83" y="795" text-anchor="middle">管 理 员</text>
+    <rect x="40" y="870" width="86" height="60" fill="#eff6ff" rx="6"/>
+    <text x="83" y="905" text-anchor="middle" fill="#1d4ed8">产 出</text>
+  </g>
+
+  <!-- 1 在线查空闲 -->
+  <rect x="160" y="130" width="210" height="64" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="265" y="158" text-anchor="middle" font-size="15" fill="#0f172a">在线查设备空闲时段</text>
+  <text x="265" y="178" text-anchor="middle" font-size="11.5" fill="#16a34a">✅ 替代「微信问一句」</text>
+
+  <line x1="370" y1="162" x2="430" y2="162" stroke="#64748b" stroke-width="1.5" marker-end="url(#b)"/>
+
+  <!-- 2 提交预约 -->
+  <rect x="430" y="130" width="200" height="64" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="530" y="156" text-anchor="middle" font-size="15" fill="#0f172a">提交预约（选时段）</text>
+  <text x="530" y="176" text-anchor="middle" font-size="11.5" fill="#64748b">设备 + 起止时间 + 用途</text>
+
+  <!-- 到系统泳道 -->
+  <path d="M530,194 L530,440" stroke="#64748b" stroke-width="1.5" marker-end="url(#b)"/>
+
+  <!-- 3 自动查冲突 -->
+  <rect x="420" y="440" width="220" height="64" rx="8" fill="#ecfdf5" stroke="#34d399" stroke-width="1.6"/>
+  <text x="530" y="466" text-anchor="middle" font-size="15" font-weight="600" fill="#065f46">自动检测时段冲突</text>
+  <text x="530" y="486" text-anchor="middle" font-size="11.5" fill="#047857">✅ 替代「管理员凭记忆判断」</text>
+
+  <line x1="530" y1="504" x2="530" y2="530" stroke="#64748b" stroke-width="1.5" marker-end="url(#b)"/>
+
+  <!-- 决策 -->
+  <path d="M530,530 L630,575 L530,620 L430,575 Z" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.8"/>
+  <text x="530" y="572" text-anchor="middle" font-size="14" font-weight="600" fill="#92400e">冲突？</text>
+  <text x="530" y="590" text-anchor="middle" font-size="11" fill="#b45309">冲突检测</text>
+
+  <!-- 冲突：推荐时段 -->
+  <path d="M630,575 L700,575" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#b)"/>
+  <text x="650" y="568" font-size="12" fill="#b45309">有</text>
+  <rect x="700" y="545" width="200" height="64" rx="8" fill="#fffbeb" stroke="#fcd34d" stroke-width="1.5"/>
+  <text x="800" y="571" text-anchor="middle" font-size="14" fill="#92400e">返回可用时段建议</text>
+  <text x="800" y="590" text-anchor="middle" font-size="11.5" fill="#b45309">当场看到「最近可约时间」</text>
+  <path d="M800,545 C800,300 265,300 265,194" fill="none" stroke="#f59e0b" stroke-width="1.2" stroke-dasharray="5 4" marker-end="url(#b)"/>
+
+  <!-- 无冲突 -->
+  <line x1="530" y1="620" x2="530" y2="655" stroke="#64748b" stroke-width="1.5" marker-end="url(#b)"/>
+  <text x="538" y="642" font-size="12" fill="#16a34a">无</text>
+
+  <!-- 4 待审批 -->
+  <rect x="420" y="655" width="220" height="56" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="530" y="678" text-anchor="middle" font-size="14" fill="#0f172a">生成待审批预约</text>
+  <text x="530" y="696" text-anchor="middle" font-size="11.5" fill="#64748b">不占设备，等审批</text>
+
+  <!-- 到管理员 -->
+  <path d="M530,711 L530,770" stroke="#64748b" stroke-width="1.5" marker-end="url(#b)"/>
+
+  <!-- 5 一次审批 -->
+  <rect x="420" y="770" width="220" height="62" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="530" y="796" text-anchor="middle" font-size="14" font-weight="600" fill="#0f172a">管理员批量审批</text>
+  <text x="530" y="815" text-anchor="middle" font-size="11.5" fill="#16a34a">✅ 一次看一周，不用逐条回微信</text>
+
+  <!-- 通过 → 使用 -->
+  <path d="M640,801 L700,801" stroke="#16a34a" stroke-width="1.6" marker-end="url(#bg)"/>
+  <text x="660" y="794" font-size="12" fill="#16a34a">通过</text>
+  <rect x="700" y="770" width="200" height="62" rx="8" fill="#f0fdf4" stroke="#34d399" stroke-width="1.6"/>
+  <text x="800" y="796" text-anchor="middle" font-size="14" font-weight="600" fill="#065f46">预约单 + 到场提醒</text>
+  <text x="800" y="815" text-anchor="middle" font-size="11.5" fill="#047857">扫码签到 / 签退</text>
+
+  <!-- 6 产出 -->
+  <rect x="160" y="875" width="260" height="46" rx="6" fill="#eff6ff" stroke="#93c5fd" stroke-width="1.4"/>
+  <text x="290" y="895" text-anchor="middle" font-size="13" font-weight="600" fill="#1e40af">使用记录自动归档</text>
+  <text x="290" y="912" text-anchor="middle" font-size="11" fill="#3b82f6">谁 / 何时 / 多久 / 哪个课题</text>
+
+  <rect x="450" y="875" width="260" height="46" rx="6" fill="#eff6ff" stroke="#93c5fd" stroke-width="1.4"/>
+  <text x="580" y="895" text-anchor="middle" font-size="13" font-weight="600" fill="#1e40af">设备利用率看板</text>
+  <text x="580" y="912" text-anchor="middle" font-size="11" fill="#3b82f6">闲置 / 饱和 / 冲突次数</text>
+
+  <rect x="740" y="875" width="250" height="46" rx="6" fill="#eff6ff" stroke="#93c5fd" stroke-width="1.4"/>
+  <text x="865" y="895" text-anchor="middle" font-size="13" font-weight="600" fill="#1e40af">采购决策依据</text>
+  <text x="865" y="912" text-anchor="middle" font-size="11" fill="#3b82f6">该不该再买一台，有数了</text>
+
+  <path d="M800,832 C800,855 400,855 290,875" fill="none" stroke="#93c5fd" stroke-width="1.4" marker-end="url(#b)"/>
+  <path d="M800,832 C800,855 650,855 580,875" fill="none" stroke="#93c5fd" stroke-width="1.4" marker-end="url(#b)"/>
+  <path d="M800,832 C800,855 850,855 865,875" fill="none" stroke="#93c5fd" stroke-width="1.4" marker-end="url(#b)"/>
+
+  <!-- 右侧：与现状的对照 -->
+  <rect x="960" y="440" width="190" height="230" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="1055" y="466" text-anchor="middle" font-size="13" font-weight="600" fill="#0f172a">与现状对照</text>
+  <line x1="975" y1="478" x2="1135" y2="478" stroke="#e2e8f0" stroke-width="1"/>
+  <g font-size="11.5" fill="#475569">
+    <text x="975" y="500">① 微信问 → 在线查</text>
+    <text x="975" y="522">② 记忆判断 → 自动检测</text>
+    <text x="975" y="544">③ 到场才发现 → 提前预警</text>
+    <text x="975" y="566">④ 事后补记 → 扫码留痕</text>
+    <text x="975" y="588">⑤ 无数据 → 有看板</text>
+  </g>
+  <line x1="975" y1="602" x2="1135" y2="602" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="975" y="624" font-size="11.5" font-weight="600" fill="#dc2626">不变的部分</text>
+  <text x="975" y="644" font-size="11" fill="#64748b">仍需管理员审批（</text>
+  <text x="975" y="660" font-size="11" fill="#64748b">保留人的裁量权）</text>
+
+  <!-- 底部说明 -->
+  <rect x="160" y="838" width="0" height="0" fill="none"/>
+  <text x="40" y="60" font-size="12" fill="#94a3b8"></text>
+</svg>
